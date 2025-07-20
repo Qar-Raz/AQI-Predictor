@@ -8,7 +8,7 @@ LONGITUDE = 67.01
 # Let's get the last year of data. You can adjust this.
 START_DATE = date.today() - timedelta(days=365)
 END_DATE = date.today() - timedelta(days=1)
-CSV_FILE = "karachi_hourly_data.csv"
+CSV_FILE = "data/karachi_hourly_data.csv"
 
 def fetch_and_save_hourly_data(latitude, longitude, start_date, end_date, filename):
     """
@@ -95,6 +95,6 @@ def fetch_and_save_hourly_data(latitude, longitude, start_date, end_date, filena
     print(f"The file contains {len(df_merged)} hourly records.")
     return True
 
-# --- Main Execution ---
+
 if __name__ == "__main__":
     fetch_and_save_hourly_data(LATITUDE, LONGITUDE, START_DATE, END_DATE, CSV_FILE)

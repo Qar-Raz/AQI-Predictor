@@ -1,8 +1,14 @@
+# This script is used to convert the hourly data to daily data.
+# It is used to get the daily average and maximum AQI.
+# It is used to get the daily average and maximum temperature, humidity, and wind speed.
+# NOTE: This this is called after the hourly data is fetched, by running the open_meteo_get_historical.py script.
+# We have to do this as Open-Meteo.com only gives us hourly data, so I had to code this to aggregate the hourly data to daily data.
+
 import pandas as pd
 
 # --- Configuration ---
-HOURLY_DATA_FILE = "karachi_hourly_data.csv"
-DAILY_DATA_FILE = "karachi_daily_data_CORRECTLY_PROCESSED.csv"
+HOURLY_DATA_FILE = "data/karachi_hourly_data.csv"
+DAILY_DATA_FILE = "data/karachi_daily_data_CORRECTLY_PROCESSED.csv"
 
 # --- Main Processing ---
 def process_hourly_to_daily_correctly(input_file, output_file):

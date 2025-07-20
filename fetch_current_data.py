@@ -6,7 +6,7 @@ import pytz
 # --- Configuration ---
 LATITUDE = 24.86
 LONGITUDE = 67.01
-TEMP_STORAGE_CSV = "current_day_hourly_data.csv"
+TEMP_STORAGE_CSV = "data/current_day_hourly_data.csv"
 
 def get_the_real_data(latitude, longitude, filename):
     """

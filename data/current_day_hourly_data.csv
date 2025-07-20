@@ -1,0 +1,2 @@
+timestamp,temperature,humidity,wind_speed,pm10,pm25,carbon_monoxide,nitrogen_dioxide,aqi
+2025-07-21 00:00:00+05:00,29.3,82,13.6,54.9,24.8,244.0,19.1,79

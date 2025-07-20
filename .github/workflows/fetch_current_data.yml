@@ -15,7 +15,7 @@ on:
 # This section defines WHAT the workflow will do
 jobs:
   build-and-commit:
-    # The workflow will run on a fresh virtual machine running Ubuntu
+    # The workflow will run on a fresh virtual machine running Ubuntu, best for python
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +27,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11' # You can change this to your preferred Python version
+          python-version: '3.11'
 
       # Step 3: Install the necessary Python libraries from your requirements file
       - name: Install dependencies
