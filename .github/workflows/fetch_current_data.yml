@@ -37,7 +37,7 @@ jobs:
 
       # Step 4: Run your Python script to fetch the data
       - name: Run data fetching script
-        run: python get_the_real_data.py
+        run: python fetch_current_data.py
 
       # Step 5: Commit the newly updated CSV file back to your repository
       - name: Commit and push changes
