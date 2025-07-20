@@ -8,9 +8,9 @@ on:
   
   # This is the schedule trigger
   schedule:
-    # This is a CRON schedule. It runs at minute 0 of hours 5, 11, 17, and 23 UTC.
-    # This translates to roughly 10 AM, 4 PM, 10 PM, and 4 AM in Karachi time.
-    - cron: '0 5,11,17,23 * * *'
+    # This is a CRON schedule. It runs at 10 minutes past the hour of hours 5, 11, 17, and 23 UTC. UTC is 5 hours ahead of Karachi time.
+    # so 5 + 5 = 10 am, 11 + 5 = 4 pm, 17 + 5 = 10 pm, 23 + 5 = 4 am.
+    - cron: '10 5,11,17,23 * * *'
 
 # This section defines WHAT the workflow will do
 jobs:
