@@ -1,0 +1,10 @@
+# Python virtual environment
+venv/
+__pycache__/
+
+# IDE / Editor folders
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store

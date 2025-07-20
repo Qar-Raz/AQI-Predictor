@@ -1,0 +1,50 @@
+# A descriptive name for your workflow
+name: Fetch Daily AQI Data
+
+# This section defines WHEN the workflow will run
+on:
+  # This allows you to run the workflow manually from the Actions tab on GitHub
+  workflow_dispatch:
+  
+  # This is the schedule trigger
+  schedule:
+    # This is a CRON schedule. It runs at minute 0 of hours 5, 11, 17, and 23 UTC.
+    # This translates to roughly 10 AM, 4 PM, 10 PM, and 4 AM in Karachi time.
+    - cron: '0 5,11,17,23 * * *'
+
+# This section defines WHAT the workflow will do
+jobs:
+  build-and-commit:
+    # The workflow will run on a fresh virtual machine running Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out your repository's code
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      # Step 2: Set up the Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11' # You can change this to your preferred Python version
+
+      # Step 3: Install the necessary Python libraries from your requirements file
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 4: Run your Python script to fetch the data
+      - name: Run data fetching script
+        run: python get_the_real_data.py
+
+      # Step 5: Commit the newly updated CSV file back to your repository
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions-bot@github.com"
+          git add current_day_hourly_data.csv
+          # The commit will only happen if the file has actually changed
+          git commit -m "Automated data update" || echo "No changes to commit"
+          git push

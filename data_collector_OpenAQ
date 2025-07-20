@@ -1,0 +1,10 @@
+from openaq import OpenAQ
+
+client = OpenAQ(api_key="ba99a018b33ae786a8a93cf9bf162a9766dfa12262ba12a3a1230ddc4165c5ad")
+
+# Make the API call
+response = client.measurements.list(sensors_id=4793473, data="days", limit=1000)
+
+print(response)
+
+client.close()
