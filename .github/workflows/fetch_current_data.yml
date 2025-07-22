@@ -44,7 +44,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions-bot@github.com"
-          git add current_day_hourly_data.csv
+          git add data/current_day_hourly_data.csv
           # The commit will only happen if the file has actually changed
           git commit -m "Automated data update" || echo "No changes to commit"
           git push
