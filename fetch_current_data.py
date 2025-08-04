@@ -7,6 +7,7 @@ import pytz
 LATITUDE = 24.86
 LONGITUDE = 67.01
 HISTORICAL_CSV = "data/last_7_days_hourly_data.csv"
+TIMEZONE = 'Asia/Karachi' # Use a constant for the timezone
 
 def get_complete_past_week_hourly_data(latitude, longitude, filename):
     """
@@ -14,20 +15,24 @@ def get_complete_past_week_hourly_data(latitude, longitude, filename):
     the historical archive with the most recent real-time measurements.
     """
     print("--- Starting full historical data assembly ---")
+    
+    # === FIX: Get the current date *in the target timezone* ===
+    # This ensures the script works correctly on any server (like UTC-based GitHub Actions).
+    karachi_now = datetime.now(pytz.timezone(TIMEZONE))
+    today_in_karachi = karachi_now.date()
 
     # --- Step 1: Fetch HISTORICAL data (Archive API) ---
-    # === FIX 1: Set the end_date for the archive to 2 days ago to avoid the data lag ===
-    hist_end_date = date.today() - timedelta(days=2)
-    hist_start_date = date.today() - timedelta(days=8) # Go back 8 days to ensure we have a full week
+    hist_end_date = today_in_karachi - timedelta(days=2)
+    hist_start_date = today_in_karachi - timedelta(days=8)
     
     print(f"Fetching historical archive from {hist_start_date} to {hist_end_date}...")
     try:
         weather_url = "https://archive-api.open-meteo.com/v1/archive"
-        weather_params = {"latitude": latitude, "longitude": longitude, "start_date": hist_start_date.strftime("%Y-%m-%d"), "end_date": hist_end_date.strftime("%Y-%m-%d"), "hourly": "temperature_2m,relative_humidity_2m,wind_speed_10m", "timezone": "Asia/Karachi"}
+        weather_params = {"latitude": latitude, "longitude": longitude, "start_date": hist_start_date.strftime("%Y-%m-%d"), "end_date": hist_end_date.strftime("%Y-%m-%d"), "hourly": "temperature_2m,relative_humidity_2m,wind_speed_10m", "timezone": TIMEZONE}
         df_weather_hist = pd.DataFrame(requests.get(weather_url, params=weather_params).json()['hourly'])
 
         aq_url = "https://air-quality-api.open-meteo.com/v1/air-quality"
-        aq_params = {"latitude": latitude, "longitude": longitude, "start_date": hist_start_date.strftime("%Y-%m-%d"), "end_date": hist_end_date.strftime("%Y-%m-%d"), "hourly": "pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,us_aqi", "timezone": "Asia/Karachi"}
+        aq_params = {"latitude": latitude, "longitude": longitude, "start_date": hist_start_date.strftime("%Y-%m-%d"), "end_date": hist_end_date.strftime("%Y-%m-%d"), "hourly": "pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,us_aqi", "timezone": TIMEZONE}
         df_aq_hist = pd.DataFrame(requests.get(aq_url, params=aq_params).json()['hourly'])
         
         df_historical = pd.merge(df_weather_hist, df_aq_hist, on='time')
@@ -40,20 +45,18 @@ def get_complete_past_week_hourly_data(latitude, longitude, filename):
         print(f"!!! WARNING: Could not fetch historical data. Reason: {e}")
         df_historical = pd.DataFrame()
 
-
     # --- Step 2: Fetch RECENT data (Forecast API) ---
-    # === FIX 2: Start the recent fetch where the archive fetch ended ===
-    recent_start_date = date.today() - timedelta(days=2)
-    recent_end_date = date.today()
+    recent_start_date = today_in_karachi - timedelta(days=2)
+    recent_end_date = today_in_karachi
     
     print(f"Fetching recent measured data from {recent_start_date} to {recent_end_date}...")
     try:
         weather_url = "https://api.open-meteo.com/v1/forecast"
-        weather_params = {"latitude": latitude, "longitude": longitude, "start_date": recent_start_date.strftime("%Y-%m-%d"), "end_date": recent_end_date.strftime("%Y-%m-%d"), "hourly": "temperature_2m,relative_humidity_2m,wind_speed_10m", "timezone": "Asia/Karachi"}
+        weather_params = {"latitude": latitude, "longitude": longitude, "start_date": recent_start_date.strftime("%Y-%m-%d"), "end_date": recent_end_date.strftime("%Y-%m-%d"), "hourly": "temperature_2m,relative_humidity_2m,wind_speed_10m", "timezone": TIMEZONE}
         df_weather_recent = pd.DataFrame(requests.get(weather_url, params=weather_params).json()['hourly'])
 
         aq_url = "https://air-quality-api.open-meteo.com/v1/air-quality"
-        aq_params = {"latitude": latitude, "longitude": longitude, "start_date": recent_start_date.strftime("%Y-%m-%d"), "end_date": recent_end_date.strftime("%Y-%m-%d"), "hourly": "pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,us_aqi", "timezone": "Asia/Karachi"}
+        aq_params = {"latitude": latitude, "longitude": longitude, "start_date": recent_start_date.strftime("%Y-%m-%d"), "end_date": recent_end_date.strftime("%Y-%m-%d"), "hourly": "pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,us_aqi", "timezone": TIMEZONE}
         df_aq_recent = pd.DataFrame(requests.get(aq_url, params=aq_params).json()['hourly'])
 
         df_recent = pd.merge(df_weather_recent, df_aq_recent, on='time')
@@ -62,7 +65,6 @@ def get_complete_past_week_hourly_data(latitude, longitude, filename):
     except Exception as e:
         print(f"!!! WARNING: Could not fetch recent data. Reason: {e}")
         df_recent = pd.DataFrame()
-
 
     # --- Step 3: Combine, De-duplicate, and Filter ---
     print("Combining and cleaning final dataset...")
@@ -73,11 +75,11 @@ def get_complete_past_week_hourly_data(latitude, longitude, filename):
     df_combined = pd.concat([df_historical, df_recent])
     df_combined = df_combined.drop_duplicates(subset='time', keep='last').sort_values(by='time')
 
-    df_combined['time'] = df_combined['time'].dt.tz_localize('Asia/Karachi', ambiguous='infer')
-    now_in_karachi = datetime.now(pytz.timezone('Asia/Karachi'))
-    df_measured = df_combined[df_combined['time'] <= now_in_karachi].copy()
+    # The rest of the script is already correct because it uses a timezone-aware 'now'
+    df_combined['time'] = df_combined['time'].dt.tz_localize(TIMEZONE, ambiguous='infer')
+    df_measured = df_combined[df_combined['time'] <= karachi_now].copy()
 
-    seven_days_ago = now_in_karachi - timedelta(days=7)
+    seven_days_ago = karachi_now - timedelta(days=7)
     df_final_week = df_measured[df_measured['time'] >= seven_days_ago]
     
     # --- Step 4: Final Rename and Save ---
