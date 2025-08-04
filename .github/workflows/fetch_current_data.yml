@@ -1,5 +1,5 @@
 # A descriptive name for your workflow
-name: Fetch Daily AQI Data
+name: Update AQI Data and Historical Pool
 
 # This section defines WHEN the workflow will run
 on:
@@ -8,14 +8,14 @@ on:
   
   # This is the schedule trigger
   schedule:
-    # This is a CRON schedule. It runs at 10 minutes past the hour of hours 5, 11, 17, and 23 UTC. UTC is 5 hours ahead of Karachi time.
-    # so 5 + 5 = 10 am, 11 + 5 = 4 pm, 17 + 5 = 10 pm, 23 + 5 = 4 am.
+    # This is a CRON schedule. It runs at 10 minutes past the hour of hours 5, 11, 17, and 23 UTC.
+    # This remains the same as your original schedule.
     - cron: '10 5,11,17,23 * * *'
 
 # This section defines WHAT the workflow will do
 jobs:
   build-and-commit:
-    # The workflow will run on a fresh virtual machine running Ubuntu, best for python
+    # The workflow will run on a fresh virtual machine running Ubuntu
     runs-on: ubuntu-latest
 
     steps:
@@ -35,16 +35,34 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Step 4: Run your Python script to fetch the data
-      - name: Run data fetching script
-        run: python fetch_current_data.py
+      # Step 4: Run the data processing pipeline in order
+      - name: Run data processing pipeline
+        run: |
+          # The first script fetches the latest hourly data for the past week
+          echo "--- Running: Fetching last 7 days of hourly data ---"
+          python get_complete_past_week_hourly_data.py
+          
+          # The second script aggregates that hourly data into daily summaries
+          echo "--- Running: Aggregating hourly data to daily ---"
+          python process_hourly_to_daily_correctly.py
+          
+          # The third script merges the new daily data into the main historical pool
+          echo "--- Running: Appending new data to historical pool ---"
+          python append_and_clean_historical_data.py
 
-      # Step 5: Commit the newly updated CSV file back to your repository
+      # Step 5: Commit ALL the newly updated CSV files back to your repository
       - name: Commit and push changes
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions-bot@github.com"
-          git add data/current_day_hourly_data.csv
-          # The commit will only happen if the file has actually changed
-          git commit -m "Automated data update" || echo "No changes to commit"
+          
+          # **CHANGE 1: Add all the files that are generated and updated.**
+          # This ensures that your entire data pipeline is saved.
+          git add data/last_7_days_hourly_data.csv
+          git add data/last_7_days_daily_data.csv
+          git add data/karachi_daily_data_5_years.csv
+          
+          # The commit will only happen if any of the files have actually changed
+          # The commit message is now more descriptive.
+          git commit -m "Automated daily data aggregation and historical update" || echo "No changes to commit"
           git push

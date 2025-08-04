@@ -7,8 +7,8 @@
 import pandas as pd
 
 # --- Configuration ---
-HOURLY_DATA_FILE = "data/karachi_hourly_data.csv"
-DAILY_DATA_FILE = "data/karachi_daily_data_CORRECTLY_PROCESSED.csv"
+HOURLY_DATA_FILE = "data\last_7_days_hourly_data.csv"
+DAILY_DATA_FILE = "data\last_7_days_daily_data.csv"
 
 # --- Main Processing ---
 def process_hourly_to_daily_correctly(input_file, output_file):

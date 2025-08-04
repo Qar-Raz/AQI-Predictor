@@ -2,13 +2,18 @@ import requests
 import pandas as pd
 from datetime import date, timedelta
 
-# --- Configuration ---
+# ----------------VERY IMPORTANT:----------------
+# I tried to get the data for 5 years, but it had to many missing values in 2020 -2022 years, so I just manually removed those in excel
+# Also removed the most recent 3 days as they were not complete.
+
+
+
 LATITUDE = 24.86
 LONGITUDE = 67.01
-# Let's get the last year of data. You can adjust this.
-START_DATE = date.today() - timedelta(days=365)
+
+START_DATE = date.today() - timedelta(days=365 * 5)
 END_DATE = date.today() - timedelta(days=1)
-CSV_FILE = "data/karachi_hourly_data.csv"
+CSV_FILE = "data/karachi_historical_data_5_years_hourly.csv"
 
 def fetch_and_save_hourly_data(latitude, longitude, start_date, end_date, filename):
     """
