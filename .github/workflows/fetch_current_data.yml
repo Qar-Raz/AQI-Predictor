@@ -1,5 +1,5 @@
 # A descriptive name for your workflow
-name: Update AQI Data and Historical Pool
+name: Fetch Daily AQI Data
 
 # This section defines WHEN the workflow will run
 on:
@@ -9,7 +9,6 @@ on:
   # This is the schedule trigger
   schedule:
     # This is a CRON schedule. It runs at 10 minutes past the hour of hours 5, 11, 17, and 23 UTC.
-    # This remains the same as your original schedule.
     - cron: '10 5,11,17,23 * * *'
 
 # This section defines WHAT the workflow will do
@@ -39,15 +38,15 @@ jobs:
       - name: Run data processing pipeline
         run: |
           # The first script fetches the latest hourly data for the past week
-          echo "--- Running: Fetching last 7 days of hourly data ---"
-          python get_complete_past_week_hourly_data.py
+          echo "--- Running: fetch_current_data.py ---"
+          python fetch_current_data.py
           
           # The second script aggregates that hourly data into daily summaries
-          echo "--- Running: Aggregating hourly data to daily ---"
-          python process_hourly_to_daily_correctly.py
+          echo "--- Running: hourly_to_daily.py ---"
+          python hourly_to_daily.py
           
           # The third script merges the new daily data into the main historical pool
-          echo "--- Running: Appending new data to historical pool ---"
+          echo "--- Running: append_and_clean_historical_data.py ---"
           python append_and_clean_historical_data.py
 
       # Step 5: Commit ALL the newly updated CSV files back to your repository
@@ -56,13 +55,12 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions-bot@github.com"
           
-          # **CHANGE 1: Add all the files that are generated and updated.**
-          # This ensures that your entire data pipeline is saved.
+          # Add all the files that are generated and updated by the pipeline.
+          # Using the correct filenames you provided for the output.
           git add data/last_7_days_hourly_data.csv
           git add data/last_7_days_daily_data.csv
           git add data/karachi_daily_data_5_years.csv
           
           # The commit will only happen if any of the files have actually changed
-          # The commit message is now more descriptive.
-          git commit -m "Automated daily data aggregation and historical update" || echo "No changes to commit"
+          git commit -m "Automated data update and aggregation" || echo "No changes to commit"
           git push
