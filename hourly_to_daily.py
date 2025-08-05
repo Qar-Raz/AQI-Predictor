@@ -5,6 +5,7 @@
 # We have to do this as Open-Meteo.com only gives us hourly data, so I had to code this to aggregate the hourly data to daily data.
 
 import pandas as pd
+import sys
 
 # --- Configuration ---
 HOURLY_DATA_FILE = "data\last_7_days_hourly_data.csv"
@@ -26,7 +27,7 @@ def process_hourly_to_daily_correctly(input_file, output_file):
     except FileNotFoundError:
         print(f"!!! ERROR: The input file '{input_file}' was not found.")
         print("Please run the previous script to generate this file first.")
-        return
+        sys.exit(1)
 
     print("\nProcessing daily aggregations...")
 

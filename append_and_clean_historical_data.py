@@ -1,4 +1,5 @@
 import pandas as pd
+import sys
 
 # --- Configuration ---
 MAIN_HISTORICAL_FILE = "data/karachi_daily_data_5_years.csv"
@@ -29,8 +30,8 @@ def append_and_clean_historical_data(main_file, new_data_file):
             
         print(f"Loaded and standardized {len(df_main)} records from the main historical file.")
     except FileNotFoundError:
-        print(f"Warning: Main historical file '{main_file}' not found. A new one will be created.")
-        df_main = pd.DataFrame()
+        print(f"!!! ERROR: New daily data file '{new_data_file}' not found. Aborting.")
+        sys.exit(1)
 
     # --- Step 2: Load the new daily data ---
     try:
