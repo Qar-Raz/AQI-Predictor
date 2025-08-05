@@ -7,9 +7,11 @@
 import pandas as pd
 import sys
 
+# NEVER USE \ IN THE FILE PATHS. IT WILL WORK ON WINDOWS BUT NOT ON LINUX. SO B/C OF THIS THE PIPELINE FAILS
+# SMOLL CHANGE CAUSED BIG FAILURE
 # --- Configuration ---
-HOURLY_DATA_FILE = "data\last_7_days_hourly_data.csv"
-DAILY_DATA_FILE = "data\last_7_days_daily_data.csv"
+HOURLY_DATA_FILE = "data/last_7_days_hourly_data.csv"
+DAILY_DATA_FILE = "data/last_7_days_daily_data.csv"
 
 # --- Main Processing ---
 def process_hourly_to_daily_correctly(input_file, output_file):
