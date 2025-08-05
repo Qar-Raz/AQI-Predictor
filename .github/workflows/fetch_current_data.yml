@@ -36,18 +36,28 @@ jobs:
 
       # Step 4: Run the data processing pipeline in order
       - name: Run data processing pipeline
+        # === FIX 1: Add 'set -e' to make the script fail immediately if any python script fails ===
+        shell: bash
         run: |
-          # The first script fetches the latest hourly data for the past week
+          set -e
+          
           echo "--- Running: fetch_current_data.py ---"
           python fetch_current_data.py
           
-          # The second script aggregates that hourly data into daily summaries
           echo "--- Running: hourly_to_daily.py ---"
           python hourly_to_daily.py
           
-          # The third script merges the new daily data into the main historical pool
           echo "--- Running: append_and_clean_historical_data.py ---"
           python append_and_clean_historical_data.py
+
+      # === FIX 2: Add a new step to list the files and their status for debugging ===
+      # This step gives us "eyes" inside the runner to see what happened.
+      - name: Check file status
+        run: |
+          echo "--- Verifying file timestamps and changes ---"
+          ls -l data/
+          echo "--- Checking git status ---"
+          git status
 
       # Step 5: Commit ALL the newly updated CSV files back to your repository
       - name: Commit and push changes
@@ -55,12 +65,12 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions-bot@github.com"
           
-          # Add all the files that are generated and updated by the pipeline.
-          # Using the correct filenames you provided for the output.
           git add data/last_7_days_hourly_data.csv
           git add data/last_7_days_daily_data.csv
           git add data/karachi_daily_data_5_years.csv
           
-          # The commit will only happen if any of the files have actually changed
+          # This command will show you exactly what it's about to commit
+          git status
+          
           git commit -m "Automated data update and aggregation" || echo "No changes to commit"
           git push
