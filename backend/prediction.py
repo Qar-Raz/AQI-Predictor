@@ -14,14 +14,19 @@ LONGITUDE = 67.01
 
 def get_future_forecast_from_api():
     """
-    Fetches the 3-day forecast. It gets daily weather but fetches HOURLY 
+    Fetches the future forecast. It gets daily weather but fetches HOURLY 
     air quality data and aggregates it to daily to match the training data format.
+    
+    *** MODIFIED to fetch 4 days and return only the next 3. ***
     """
-    print("--- Fetching 3-Day Future Forecast Data ---")
+    print("--- Fetching Future Forecast Data ---")
     try:
-        # 1. Fetch Daily Weather Forecast (This part is fine)
+        # === FIX 1: Ask for 4 days of forecast data instead of 3 ===
+        FORECAST_DAYS = 4
+        
+        # 1. Fetch Daily Weather Forecast
         weather_url = "https://api.open-meteo.com/v1/forecast"
-        weather_params = {"latitude": LATITUDE, "longitude": LONGITUDE, "daily": "temperature_2m_mean,relative_humidity_2m_mean,wind_speed_10m_mean", "forecast_days": 3, "timezone": TIMEZONE}
+        weather_params = {"latitude": LATITUDE, "longitude": LONGITUDE, "daily": "temperature_2m_mean,relative_humidity_2m_mean,wind_speed_10m_mean", "forecast_days": FORECAST_DAYS, "timezone": TIMEZONE}
         weather_response = requests.get(weather_url, params=weather_params)
         weather_response.raise_for_status()
         weather_json = weather_response.json()
@@ -34,9 +39,9 @@ def get_future_forecast_from_api():
         df_weather_daily.rename(columns={'time': 'timestamp'}, inplace=True)
         df_weather_daily['timestamp'] = pd.to_datetime(df_weather_daily['timestamp'])
 
-        # 2. === FIX: Fetch HOURLY Air Quality Forecast ===
+        # 2. Fetch HOURLY Air Quality Forecast
         aq_url = "https://air-quality-api.open-meteo.com/v1/air-quality"
-        aq_params = {"latitude": LATITUDE, "longitude": LONGITUDE, "hourly": "pm10,pm2_5,carbon_monoxide,nitrogen_dioxide", "forecast_days": 3, "timezone": TIMEZONE}
+        aq_params = {"latitude": LATITUDE, "longitude": LONGITUDE, "hourly": "pm10,pm2_5,carbon_monoxide,nitrogen_dioxide", "forecast_days": FORECAST_DAYS, "timezone": TIMEZONE}
         aq_response = requests.get(aq_url, params=aq_params)
         aq_response.raise_for_status()
         aq_json = aq_response.json()
@@ -49,17 +54,14 @@ def get_future_forecast_from_api():
         df_aq_hourly.rename(columns={'time': 'timestamp'}, inplace=True)
         df_aq_hourly['timestamp'] = pd.to_datetime(df_aq_hourly['timestamp'])
 
-        # 3. === FIX: Aggregate the hourly AQ data to daily means ===
+        # 3. Aggregate the hourly AQ data to daily means
         df_aq_hourly.set_index('timestamp', inplace=True)
-        # We only need the pollutants, not AQI which isn't in the forecast
         pollutant_columns = ['pm10', 'pm2_5', 'carbon_monoxide', 'nitrogen_dioxide']
         df_aq_daily = df_aq_hourly[pollutant_columns].resample('D').mean()
         
         # 4. Combine the daily weather and daily aggregated AQ data
-        # We merge on the index (the date)
         forecast_df = pd.merge(df_weather_daily.set_index('timestamp'), df_aq_daily, left_index=True, right_index=True)
         
-        # Rename columns to match model's expected feature names
         forecast_df.rename(columns={
             'temperature_2m_mean': 'temperature',
             'relative_humidity_2m_mean': 'humidity',
@@ -67,8 +69,12 @@ def get_future_forecast_from_api():
             'pm2_5': 'pm25'
         }, inplace=True)
         
-        print("-> OK: Future forecast data fetched and aggregated.")
-        return forecast_df
+        # === FIX 2: Slice the DataFrame to exclude today and only return the next 3 days ===
+        # .iloc[1:] selects all rows from the second row onwards.
+        future_days_only = forecast_df.iloc[1:]
+        
+        print(f"-> OK: Future forecast data fetched and processed for the next {len(future_days_only)} days.")
+        return future_days_only
         
     except requests.exceptions.HTTPError as http_err:
         print(f"!!! FATAL: HTTP error occurred: {http_err}")
