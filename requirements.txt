@@ -1,3 +1,10 @@
-requests
+# Core Data Science & Utility Libraries
 pandas
+scikit-learn
+requests
+joblib
 pytz
+
+# Backend API Libraries
+fastapi
+uvicorn
