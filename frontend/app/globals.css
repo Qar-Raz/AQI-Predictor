@@ -62,3 +62,41 @@ body {
   font-weight: bold;
   color: #ffffff;
 }
+
+.today-aqi-container {
+  background-color: #1e1e1e; /* A slightly darker background */
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The large number for the AQI value */
+.today-aqi-value {
+  font-size: 4.5rem; /* Much larger font */
+  font-weight: 700;   /* Bolder */
+  line-height: 1;
+  color: #ffffff;
+}
+
+/* The label underneath the large number */
+.today-aqi-label {
+  font-size: 1rem;
+  color: #a0a0a0;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* A title for the forecast section */
+.forecast-title {
+  font-size: 1.2rem;
+  color: #c0c0c0;
+  margin-bottom: 1rem;
+  text-align: left;
+  padding-left: 0.5rem;
+}
