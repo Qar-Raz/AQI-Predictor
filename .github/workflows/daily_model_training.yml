@@ -28,7 +28,7 @@ jobs:
           pip install -r requirements.txt
       
       - name: Train the champion model
-        run: python train_champion_model.py
+        run: python train_model.py
 
       - name: Commit and push updated model
         uses: stefanzweifel/git-auto-commit-action@v5
