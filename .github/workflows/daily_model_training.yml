@@ -1,65 +1,39 @@
-# .github/workflows/daily_model_training.yml
 
-# A descriptive name for your workflow, which will appear in the GitHub Actions tab.
 name: Daily Model Retraining
-
-# Defines when the workflow will run.
 on:
-  # Triggers the workflow at 12:00 UTC every day.
-  # You can change the time here. Use https://crontab.guru to help.
   schedule:
-    - cron: '0 12 * * *'
+    # THIS IS THE CORRECTED LINE:
+    # Runs at 19:00 UTC, which is 12:00 AM (midnight) in Karachi (PKT / UTC+5)
+    - cron: '0 19 * * *'
 
   # Allows you to run this workflow manually from the Actions tab on GitHub.
-  # This is extremely useful for testing!
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel.
 jobs:
-  # The name of our single job.
   train-and-commit-model:
-    # The type of virtual machine to run the job on. 'ubuntu-latest' is the standard.
     runs-on: ubuntu-latest
 
-    # A sequence of tasks that will be executed as part of the job.
     steps:
-      # 1. Check out your repository code
-      # This step checks out a copy of your repository onto the virtual machine,
-      # making your scripts, requirements.txt, and CSV data file available.
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Set up Python environment
-      # Installs a specific version of Python on the virtual machine.
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 3. Install dependencies
-      # Reads your requirements.txt file and installs all the necessary libraries.
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
-      # 4. Run the model training script
-      # This is the core step where your Python script is executed.
       - name: Train the champion model
         run: python train_champion_model.py
 
-      # 5. Commit the new model file back to the repository
-      # This action automatically checks for changes, adds them, commits, and pushes.
       - name: Commit and push updated model
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          # The commit message for the automatic update.
           commit_message: "CI: Automatically retrain and update champion model"
-          
-          # The specific file(s) to look for changes in.
-          # This pattern will match any .joblib file inside the 'saved_models' directory.
           file_pattern: 'saved_models/*.joblib'
-
-          # The author of the commit.
           commit_user_name: GitHub Actions Bot
           commit_user_email: actions@github.com
