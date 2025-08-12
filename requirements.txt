@@ -4,6 +4,10 @@ scikit-learn
 requests
 joblib
 pytz
+xgboost
+lightgbm
+catboost
+numpy
 
 # Backend API Libraries
 fastapi
