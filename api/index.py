@@ -3,18 +3,42 @@ import numpy as np
 import joblib
 import requests
 import os
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
+# --- 1. Global Variables & Configuration ---
 MODEL_FILE = 'models/MAIN MODEL.joblib'
 HISTORICAL_DATA_FILE = 'data/karachi_daily_data_5_years.csv'
-
-
 TIMEZONE = 'Asia/Karachi'
 LATITUDE = 24.86
 LONGITUDE = 67.01
 
+# --- 2. Initialize the FastAPI App ---
+app = FastAPI(
+    title="Pearls AQI Predictor API",
+    description="An API to provide today's AQI and a 3-day forecast.",
+    version="1.0.0"
+)
+
+# --- 3. Set up CORS ---
+# Note: For production, you should restrict this to your actual frontend domain
+origins = [
+    "http://localhost:3000",
+    "localhost:3000",
+    # Add your Vercel frontend URL here, e.g., "https://your-app-name.vercel.app"
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# --- 4. Prediction Logic (from your prediction.py) ---
 
 def get_future_forecast_from_api():
-    """Fetches and prepares the forecast for the next 3 days. (Your original working function)"""
+    """Fetches and prepares the forecast for the next 3 days."""
     print("--- Fetching Future Forecast Data ---")
     try:
         FORECAST_DAYS = 4
@@ -68,12 +92,10 @@ def create_features_for_single_day(forecast_row, history_df):
     window_sizes = [3, 7]
     cols_to_roll = ['aqi', 'pm25', 'carbon_monoxide', 'wind_speed', 'humidity']
     
-    # To calculate rolling stats for the day we are predicting, we need the history PLUS the current forecast data
     temp_df_for_rolling = pd.concat([history_df, pd.DataFrame(forecast_row).T])
 
     for window in window_sizes:
         for col in cols_to_roll:
-            # Calculate rolling stats on the combined history+current data, then take the last value
             features[f'{col}_rolling_mean_{window}'] = temp_df_for_rolling[col].shift(1).rolling(window=window).mean().iloc[-1]
             features[f'{col}_rolling_std_{window}'] = temp_df_for_rolling[col].shift(1).rolling(window=window).std().iloc[-1]
 
@@ -93,11 +115,11 @@ def generate_full_response():
     """
     print("\n====== STARTING FULL RESPONSE GENERATION ======")
     try:
+        # These paths are now relative to the root of the project
         model = joblib.load(MODEL_FILE)
-        # Load historical data and ensure timestamp is a datetime object
         df_historical = pd.read_csv(HISTORICAL_DATA_FILE, parse_dates=['timestamp'])
     except FileNotFoundError as e:
-        return {"error": f"Missing required file: {e}"}
+        return {"error": f"Missing required file: {e}. Ensure 'models' and 'data' directories are in the project root."}
 
     # --- Step 1: Get Today's Most Recent AQI ---
     latest_data = df_historical.sort_values('timestamp').iloc[-1]
@@ -112,30 +134,21 @@ def generate_full_response():
         return {"error": "Could not retrieve future weather forecast."}
     
     # --- Step 3: Generate the 3-day AQI Forecast (Iteratively) ---
-    # Start with a "live" history that we will update with each prediction
     live_history = df_historical.sort_values('timestamp').tail(10).copy()
     MODEL_FEATURES = model.feature_names_in_
     
     predictions = []
     for date_to_predict, forecast_row in future_data.iterrows():
         
-        # Use our new function to create all required features for this single day
         features = create_features_for_single_day(forecast_row, live_history)
-        
-        # Convert to DataFrame and ensure correct column order
         features_df = pd.DataFrame([features])[MODEL_FEATURES]
-        
-        # Make the prediction
         predicted_aqi = model.predict(features_df)[0]
         
-        # Store the formatted result
         predictions.append({
             "date": date_to_predict.strftime('%Y-%m-%d'),
             "predicted_aqi": round(predicted_aqi)
         })
         
-        # CRUCIAL: Update live_history with the new prediction for the next loop iteration
-        # This makes the new prediction available for the next day's lag and rolling calculations
         new_row_data = forecast_row.to_dict()
         new_row_data['aqi'] = predicted_aqi
         new_row_df = pd.DataFrame([new_row_data], index=[date_to_predict])
@@ -151,8 +164,28 @@ def generate_full_response():
     print("====== FULL RESPONSE GENERATION COMPLETE ======")
     return final_response
 
-# Main block for direct testing
-if __name__ == "__main__":
-    result = generate_full_response()
-    print("DONE EXECUTION")
-    print(result)
+# --- 5. API Endpoints ---
+
+@app.get("/api/forecast")
+def get_aqi_forecast():
+    """
+    This endpoint runs the complete prediction pipeline to get today's
+    AQI value and a 3-day future forecast.
+    """
+    print("--- Received request for /forecast ---")
+    
+    # Call the powerful function now defined in this same file
+    response_data = generate_full_response()
+    
+    # Handle any errors that the function might have returned
+    if "error" in response_data:
+        raise HTTPException(status_code=500, detail=response_data["error"])
+        
+    return response_data
+
+@app.get("/api")
+def read_root():
+    """
+    Root endpoint for the API.
+    """
+    return {"message": "Welcome to the AQI Predictor API."}
