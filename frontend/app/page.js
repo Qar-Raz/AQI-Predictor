@@ -65,7 +65,7 @@ export default function HomePage() {
       {todayAqi && (
         <div className="today-aqi-container">
           <div className="today-aqi-value">{todayAqi.aqi}</div>
-          <div className="today-aqi-label">Today's AQI ({todayAqi.date})</div>
+          <div className="today-aqi-label">Today&aposs AQI ({todayAqi.date})</div>
         </div>
       )}
       
