@@ -1,12 +1,63 @@
-# Python virtual environment
-venv/
-__pycache__/
-
 # IDE / Editor folders
 .vscode/
 .idea/
 
-catboost_info/
-
 # OS-specific files
 .DS_Store
+
+# -----------------------------------------------
+# Python
+# -----------------------------------------------
+# Virtual environment
+.venv/
+venv/
+
+# Bytecode files
+__pycache__/
+*.pyc
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite3
+
+# Secrets
+.env
+
+# -----------------------------------------------
+# Node.js / Next.js (inside your 'frontend' folder)
+# -----------------------------------------------
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Dependency directories
+frontend/node_modules/
+node_modules/
+
+# Next.js build output and cache
+frontend/.next/
+.next/
+
+# Other Next.js specific
+frontend/out/
+out/
+
+# Local environment variables (IMPORTANT for security)
+frontend/.env.local
+.env.local
+
+# Turbopack cache
+.turbo
+
+# Test results
+coverage
