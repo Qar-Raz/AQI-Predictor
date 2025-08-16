@@ -5,7 +5,11 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '10 5,11,17,23 * * *'
+  push:
+    branches:
+      - main-clean
 
+    
 jobs:
   build-and-commit:
     runs-on: ubuntu-latest

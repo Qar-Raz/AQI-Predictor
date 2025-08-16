@@ -3,7 +3,7 @@ name: Sync to Hugging Face Space
 on:
   push:
     branches:
-      - main # This workflow runs ONLY when you push to the 'main' branch
+      - clean-main # This workflow runs ONLY when you push to the 'main' branch
 
 jobs:
   sync:
