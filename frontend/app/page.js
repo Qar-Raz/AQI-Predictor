@@ -18,7 +18,7 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchForecast() {
       try {
-        const response = await fetch('/api/forecast');
+        const response = await fetch('https://qar-raz-aqi-predictor.hf.space/api/forecast');
         
         if (!response.ok) {
           // Try to get a more detailed error from the server's response
