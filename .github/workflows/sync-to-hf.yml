@@ -25,4 +25,4 @@ jobs:
           
           # Force-push the main branch to the Hugging Face remote
           # This makes the Space an exact mirror of your GitHub repo
-          git push --force space main
+           git push --force space clean-main:main

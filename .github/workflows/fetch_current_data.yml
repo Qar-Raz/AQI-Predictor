@@ -7,15 +7,19 @@ on:
     - cron: '10 5,11,17,23 * * *'
   push:
     branches:
-      - main-clean
+      # --- FIX #1: Corrected the branch name ---
+      - clean-main
 
-    
 jobs:
   build-and-commit:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
+        # This will correctly check out the 'clean-main' branch
         uses: actions/checkout@v4
+        with:
+          # We need to fetch the history to compare changes for the commit step
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -28,28 +32,21 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run data processing pipeline
-        # This 'set -e' is critical. It forces the workflow to stop
-        # the moment any of your Python scripts exit with an error.
         shell: bash
         run: |
           set -e
-          
           echo "--- Running: fetch_current_data.py ---"
           python fetch_current_data.py
-          
           echo "--- Running: hourly_to_daily.py ---"
           python hourly_to_daily.py
-          
           echo "--- Running: append_and_clean_historical_data.py ---"
           python append_and_clean_historical_data.py
 
-      # NEW STEP: Let's aggressively check the output before committing
       - name: Verify script outputs
         run: |
           echo "--- Verifying file contents ---"
           echo "--- last_7_days_daily_data.csv (head) ---"
           head -n 5 data/last_7_days_daily_data.csv
-          
           echo "--- karachi_daily_data_5_years.csv (tail) ---"
           tail -n 5 data/karachi_daily_data_5_years.csv
 
@@ -63,11 +60,10 @@ jobs:
           git add data/last_7_days_daily_data.csv
           git add data/karachi_daily_data_5_years.csv
           
-          # Check the status before committing
-          git status
+          # --- FIX #2: Make the commit and push more robust ---
+          # This command checks if there are any staged changes.
+          # If there are, it commits them. If not, it does nothing and succeeds.
+          git diff-index --quiet HEAD || git commit -m "Automated data update and aggregation"
           
-          # This will now FAIL if there are no changes, telling us the truth.
-          # The -m flag provides the commit message.
-          git commit -m "Automated data update and aggregation"
-          
-          git push
+          # This command is now explicit: it pushes the 'clean-main' branch to the 'origin' remote.
+          git push origin clean-main

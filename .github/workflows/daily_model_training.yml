@@ -1,13 +1,13 @@
-
 name: Daily Model Retraining
+
 on:
   schedule:
-    # THIS IS THE CORRECTED LINE:
     # Runs at 19:00 UTC, which is 12:00 AM (midnight) in Karachi (PKT / UTC+5)
     - cron: '0 19 * * *'
   push:
     branches:
-      - main-clean
+      # --- FIX #1: Corrected the branch name ---
+      - clean-main
 
   # Allows you to run this workflow manually from the Actions tab on GitHub.
   workflow_dispatch:
@@ -19,6 +19,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # --- FIX #2: Explicitly enable Git LFS during checkout ---
+          # This is essential for the push step to work correctly.
+          lfs: true
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -33,10 +37,22 @@ jobs:
       - name: Train the champion model
         run: python train_model.py
 
+      # --- FIX #3: Replaced the auto-commit action with a robust manual script ---
       - name: Commit and push updated model
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "CI: Automatically retrain and update champion model"
-          file_pattern: 'saved_models/*.joblib'
-          commit_user_name: GitHub Actions Bot
-          commit_user_email: actions@github.com
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions-bot@github.com"
+          
+          # This ensures the LFS configuration is present and correct
+          git lfs install
+          git lfs track "models/*.joblib"
+          
+          git add .gitattributes
+          # Make sure to add the specific model file your script creates
+          git add models/MAIN MODEL.joblib
+          
+          # Only commit if there are actual changes to the model file
+          git diff-index --quiet HEAD || git commit -m "CI: Automatically retrain and update champion model"
+          
+          # Explicitly push the correct branch
+          git push origin clean-main
