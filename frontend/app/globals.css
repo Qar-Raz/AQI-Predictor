@@ -1,0 +1,102 @@
+/* A simple dark theme and modern font stack */
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* The main container for our content */
+.container {
+  width: 100%;
+  max-width: 500px;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* The header section with the title */
+.header {
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  font-size: 1.1rem;
+  color: #a0a0a0;
+}
+
+/* The list that will hold our forecast items */
+.forecast-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Each individual forecast day item */
+.forecast-item {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
+.forecast-item .date {
+  color: #c0c0c0;
+}
+
+.forecast-item .aqi {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.today-aqi-container {
+  background-color: #1e1e1e; /* A slightly darker background */
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The large number for the AQI value */
+.today-aqi-value {
+  font-size: 4.5rem; /* Much larger font */
+  font-weight: 700;   /* Bolder */
+  line-height: 1;
+  color: #ffffff;
+}
+
+/* The label underneath the large number */
+.today-aqi-label {
+  font-size: 1rem;
+  color: #a0a0a0;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* A title for the forecast section */
+.forecast-title {
+  font-size: 1.2rem;
+  color: #c0c0c0;
+  margin-bottom: 1rem;
+  text-align: left;
+  padding-left: 0.5rem;
+}

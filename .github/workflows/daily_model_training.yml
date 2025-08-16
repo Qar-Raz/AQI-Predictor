@@ -1,0 +1,39 @@
+
+name: Daily Model Retraining
+on:
+  schedule:
+    # THIS IS THE CORRECTED LINE:
+    # Runs at 19:00 UTC, which is 12:00 AM (midnight) in Karachi (PKT / UTC+5)
+    - cron: '0 19 * * *'
+
+  # Allows you to run this workflow manually from the Actions tab on GitHub.
+  workflow_dispatch:
+
+jobs:
+  train-and-commit-model:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Train the champion model
+        run: python train_model.py
+
+      - name: Commit and push updated model
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "CI: Automatically retrain and update champion model"
+          file_pattern: 'saved_models/*.joblib'
+          commit_user_name: GitHub Actions Bot
+          commit_user_email: actions@github.com

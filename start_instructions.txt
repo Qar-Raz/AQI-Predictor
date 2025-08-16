@@ -1,0 +1,7 @@
+
+RUN THIS FOR BACKEND UNICORN SERVER
+uvicorn backend.main:app
+
+RUN THIS FOR NEXTAPP (FRONTEND)
+cd frontend
+npm run dev
