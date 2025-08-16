@@ -5,10 +5,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '10 5,11,17,23 * * *'
-  push:
-    branches:
-      # --- FIX #1: Corrected the branch name ---
-      - clean-main
+  
 
 jobs:
   build-and-commit:
@@ -65,5 +62,6 @@ jobs:
           # If there are, it commits them. If not, it does nothing and succeeds.
           git diff-index --quiet HEAD || git commit -m "Automated data update and aggregation"
           
+           git pull --rebase origin clean-main
           # This command is now explicit: it pushes the 'clean-main' branch to the 'origin' remote.
           git push origin clean-main

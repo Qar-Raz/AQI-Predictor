@@ -4,10 +4,7 @@ on:
   schedule:
     # Runs at 19:00 UTC, which is 12:00 AM (midnight) in Karachi (PKT / UTC+5)
     - cron: '0 19 * * *'
-  push:
-    branches:
-      # --- FIX #1: Corrected the branch name ---
-      - clean-main
+ 
 
   # Allows you to run this workflow manually from the Actions tab on GitHub.
   workflow_dispatch:
