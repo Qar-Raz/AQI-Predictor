@@ -54,5 +54,6 @@ jobs:
           # Only commit if there are actual changes to the model file
           git diff-index --quiet HEAD || git commit -m "CI: Automatically retrain and update champion model"
           
+           git pull --rebase origin clean-main
           # Explicitly push the correct branch
           git push origin clean-main
