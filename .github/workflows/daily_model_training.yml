@@ -49,7 +49,7 @@ jobs:
           
           git add .gitattributes
           # Make sure to add the specific model file your script creates
-          git add models/MAIN MODEL.joblib
+          git add "models/MAIN MODEL.joblib"
           
           # Only commit if there are actual changes to the model file
           git diff-index --quiet HEAD || git commit -m "CI: Automatically retrain and update champion model"
