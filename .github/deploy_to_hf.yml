@@ -1,0 +1,38 @@
+name: Deploy Backend to Hugging Face
+
+# --- TRIGGERS ---
+on:
+  # This allows you to run the workflow manually from the Actions tab
+  workflow_dispatch:
+
+  # This runs the workflow on a schedule
+  schedule:
+    # Runs at 01:00 UTC every day (you can adjust this)
+    - cron: '0 1 * * *'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        # We don't need the full history, just the latest code
+        with:
+          lfs: true # Crucially, tells the checkout to handle your LFS model file
+
+      - name: Create Clean Deployment Branch
+        run: |
+          # This sequence creates a single, clean commit
+          git checkout --orphan deploy-branch
+          git add -A
+          git commit -m "Automated backend deployment for $(date +%F)"
+
+      - name: Push to Hugging Face Space
+        env:
+          # Uses the HF_TOKEN secret you've already stored in GitHub
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          # This is the same push command from your script
+          git remote add space "https://Qar-Raz:${HF_TOKEN}@huggingface.co/spaces/Qar-Raz/AQI_Predictor_Qamar"
+          git push --force space deploy-branch:main
