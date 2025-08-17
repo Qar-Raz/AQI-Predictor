@@ -7,8 +7,8 @@ on:
 
   # This runs the workflow on a schedule
   schedule:
-    # Runs at 01:00 UTC every day (you can adjust this)
-    - cron: '0 1 * * *'
+    # Runs at 2 am karachi time
+    - cron: '0 21 * * *'
 
 jobs:
   deploy:

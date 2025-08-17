@@ -166,6 +166,29 @@ def generate_full_response():
 
 # --- 5. API Endpoints ---
 
+
+# --- ADD THIS NEW ENDPOINT FUNCTION ---
+@app.get("/api/status")
+def get_status():
+    """
+    Provides the status of the API and the last update time of the model.
+    """
+    try:
+        # Get the file's modification time (as a Unix timestamp)
+        mod_time_unix = os.path.getmtime(MODEL_FILE_PATH)
+        # Convert it to a human-readable UTC datetime object
+        last_updated_dt = datetime.fromtimestamp(mod_time_unix, tz=timezone.utc)
+
+        return {
+            "status": "online",
+            "model_last_updated_utc": last_updated_dt.isoformat()
+        }
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Model file not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/api/forecast")
 def get_aqi_forecast():
     """
