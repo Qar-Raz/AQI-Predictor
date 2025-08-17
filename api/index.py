@@ -3,6 +3,7 @@ import numpy as np
 import joblib
 import requests
 import os
+from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -175,7 +176,7 @@ def get_status():
     """
     try:
         # Get the file's modification time (as a Unix timestamp)
-        mod_time_unix = os.path.getmtime(MODEL_FILE_PATH)
+        mod_time_unix = os.path.getmtime(MODEL_FILE)
         # Convert it to a human-readable UTC datetime object
         last_updated_dt = datetime.fromtimestamp(mod_time_unix, tz=timezone.utc)
 
