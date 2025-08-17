@@ -65,10 +65,9 @@ export default function HomePage() {
       {todayAqi && (
         <div className="today-aqi-container">
           <div className="today-aqi-value">{todayAqi.aqi}</div>
-          <div className="today-aqi-label">Today's AQI ({todayAqi.date})</div>
+          <div className="today-aqi-label">{"Today's AQI (" + todayAqi.date + ")"}</div>
         </div>
       )}
-      
       {/* --- Section for the 3-Day Forecast --- */}
       <h2 className="forecast-title">Next 3 Days Forecast</h2>
       <ul className="forecast-list">
