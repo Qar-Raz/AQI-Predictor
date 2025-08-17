@@ -18,7 +18,7 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchForecast() {
       try {
-        const response = await fetch('https://qar-raz-aqi-predictor.hf.space/api/forecast');
+        const response = await fetch('https://qar-raz-aqi-predictor-qamar.hf.space/api/forecast');
         
         if (!response.ok) {
           // Try to get a more detailed error from the server's response
@@ -65,7 +65,7 @@ export default function HomePage() {
       {todayAqi && (
         <div className="today-aqi-container">
           <div className="today-aqi-value">{todayAqi.aqi}</div>
-          <div className="today-aqi-label">Today&aposs AQI ({todayAqi.date})</div>
+          <div className="today-aqi-label">Today's AQI ({todayAqi.date})</div>
         </div>
       )}
       
