@@ -24,6 +24,10 @@ jobs:
       - name: Create Clean Deployment Branch
         run: |
           # This sequence creates a single, clean commit
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
           git checkout --orphan deploy-branch
           git add -A
           git commit -m "Automated backend deployment for $(date +%F)"
