@@ -3,7 +3,7 @@ name: Sync to Hugging Face Space
 on:
   push:
     branches:
-      - main # This workflow runs ONLY when you push to the 'main' branch
+      - main # Runs whenever a commit is pushed to main
 
 jobs:
   sync:
@@ -12,17 +12,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # This fetches the whole history, needed for a clean push
-          lfs: true     # This tells the action to handle your LFS model file correctly
+          fetch-depth: 0
+          lfs: true # Crucially, it handles your LFS model file
 
       - name: Push to Hugging Face Hub
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }} # Uses the secret key you just stored
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Add the Hugging Face remote, embedding the token for authentication
-          # IMPORTANT: Replace YourUsername and YourSpaceName with your actual details
-          git remote add space "https://Qar-Raz:${HF_TOKEN}@huggingface.co/spaces/Qar-Raz/AQI_Predictor"
-          
-          # Force-push the main branch to the Hugging Face remote
-          # This makes the Space an exact mirror of your GitHub repo
+          # Make sure this URL is correct
+          git remote add space "https://Qar-Raz:${HF_TOKEN}@huggingface.co/spaces/Qar-Raz/AQI_Predictor_Qamar"
           git push --force space main

@@ -68,6 +68,7 @@ export default function HomePage() {
           <div className="today-aqi-label">{"Today's AQI (" + todayAqi.date + ")"}</div>
         </div>
       )}
+      
       {/* --- Section for the 3-Day Forecast --- */}
       <h2 className="forecast-title">Next 3 Days Forecast</h2>
       <ul className="forecast-list">
