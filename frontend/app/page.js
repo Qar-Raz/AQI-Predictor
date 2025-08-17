@@ -63,11 +63,14 @@ export default function HomePage() {
       {/* === Section for Today's AQI (Large Label) === */}
       {/* This checks if todayAqi has data before trying to render it. */}
       {todayAqi && (
-        <div className="today-aqi-container">
-          <div className="today-aqi-value">{todayAqi.aqi}</div>
-          <div className="today-aqi-label">{"Today's AQI (" + todayAqi.date + ")"}</div>
-        </div>
-      )}
+  <div className="today-aqi-container">
+    <div className="today-aqi-value">{todayAqi.aqi}</div>
+    <div className="today-aqi-label">
+      {/* This creates a YYYY-MM-DD formatted date for right now */}
+      {"Today's AQI (" + new Date().toLocaleDateString('en-CA') + ")"}
+    </div>
+  </div>
+)}
       
       {/* --- Section for the 3-Day Forecast --- */}
       <h2 className="forecast-title">Next 3 Days Forecast</h2>
