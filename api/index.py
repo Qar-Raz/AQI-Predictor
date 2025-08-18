@@ -7,26 +7,24 @@ from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-# --- 1. Global Variables & Configuration ---
+
 MODEL_FILE = 'models/MAIN MODEL.joblib'
 HISTORICAL_DATA_FILE = 'data/karachi_daily_data_5_years.csv'
 TIMEZONE = 'Asia/Karachi'
 LATITUDE = 24.86
 LONGITUDE = 67.01
 
-# --- 2. Initialize the FastAPI App ---
+# Setting up the fastapi app, configs
 app = FastAPI(
     title="Pearls AQI Predictor API",
     description="An API to provide today's AQI and a 3-day forecast.",
     version="1.0.0"
 )
 
-# --- 3. Set up CORS ---
-# Note: For production, you should restrict this to your actual frontend domain
+
 origins = [
     "http://localhost:3000",
     "localhost:3000",
-    # Add your Vercel frontend URL here, e.g., "https://your-app-name.vercel.app"
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -36,7 +34,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- 4. Prediction Logic (from your prediction.py) ---
+# This is the main prediction logic
 
 def get_future_forecast_from_api():
     """Fetches and prepares the forecast for the next 3 days."""
@@ -116,25 +114,25 @@ def generate_full_response():
     """
     print("\n====== STARTING FULL RESPONSE GENERATION ======")
     try:
-        # These paths are now relative to the root of the project
+        
         model = joblib.load(MODEL_FILE)
         df_historical = pd.read_csv(HISTORICAL_DATA_FILE, parse_dates=['timestamp'])
     except FileNotFoundError as e:
         return {"error": f"Missing required file: {e}. Ensure 'models' and 'data' directories are in the project root."}
 
-    # --- Step 1: Get Today's Most Recent AQI ---
+    #1: Get Today's Most Recent AQI
     latest_data = df_historical.sort_values('timestamp').iloc[-1]
     today_aqi_data = {
         "date": latest_data['timestamp'].strftime('%Y-%m-%d'),
         "aqi": round(latest_data['aqi'])
     }
     
-    # --- Step 2: Get the Future Forecast Ingredients ---
+    #2: Get the Future Forecast Ingredients
     future_data = get_future_forecast_from_api()
     if future_data is None:
         return {"error": "Could not retrieve future weather forecast."}
     
-    # --- Step 3: Generate the 3-day AQI Forecast (Iteratively) ---
+    #3: Generate the 3-day AQI Forecast, is done iteratively (IMP)
     live_history = df_historical.sort_values('timestamp').tail(10).copy()
     MODEL_FEATURES = model.feature_names_in_
     
@@ -156,7 +154,7 @@ def generate_full_response():
         
         live_history = pd.concat([live_history, new_row_df])
         
-    # --- Step 4: Assemble the Final Response ---
+    #Assemble the Final Response 
     final_response = {
         "today": today_aqi_data,
         "forecast": predictions
@@ -165,17 +163,14 @@ def generate_full_response():
     print("====== FULL RESPONSE GENERATION COMPLETE ======")
     return final_response
 
-# --- 5. API Endpoints ---
-
-
-# --- ADD THIS NEW ENDPOINT FUNCTION ---
+# API endpoints configured here
 @app.get("/api/status")
 def get_status():
     """
     Provides the status of the API and the last update time of the model.
     """
     try:
-        # Get the file's modification time (as a Unix timestamp)
+        
         mod_time_unix = os.path.getmtime(MODEL_FILE)
         # Convert it to a human-readable UTC datetime object
         last_updated_dt = datetime.fromtimestamp(mod_time_unix, tz=timezone.utc)
@@ -198,10 +193,10 @@ def get_aqi_forecast():
     """
     print("--- Received request for /forecast ---")
     
-    # Call the powerful function now defined in this same file
+    
     response_data = generate_full_response()
     
-    # Handle any errors that the function might have returned
+    
     if "error" in response_data:
         raise HTTPException(status_code=500, detail=response_data["error"])
         

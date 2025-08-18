@@ -94,10 +94,9 @@ def get_complete_past_week_hourly_data(latitude, longitude, filename):
 
     df_final.to_csv(filename, index=False)
     
-    print(f"\n✅ DONE ✅")
+    print(f"\n DONE ")
     print(f"Saved {len(df_final)} hourly records to '{filename}', covering a complete and up-to-date 7-day period.")
 
-
-# --- Main Execution ---
+#main func
 if __name__ == "__main__":
     get_complete_past_week_hourly_data(LATITUDE, LONGITUDE, HISTORICAL_CSV)

@@ -1,4 +1,4 @@
-# A descriptive name for your workflow
+# This fetches and updates the historical data pool daily
 name: Fetch Daily AQI Data
 
 on:
@@ -25,7 +25,7 @@ jobs:
 
       - name: Run data processing pipeline
         # This 'set -e' is critical. It forces the workflow to stop
-        # the moment any of your Python scripts exit with an error.
+        # the moment any of your Python scripts exit with an error. --@Qamar
         shell: bash
         run: |
           set -e
@@ -39,7 +39,7 @@ jobs:
           echo "--- Running: append_and_clean_historical_data.py ---"
           python append_and_clean_historical_data.py
 
-      # NEW STEP: Let's aggressively check the output before committing
+      
       - name: Verify script outputs
         run: |
           echo "--- Verifying file contents ---"
@@ -59,11 +59,9 @@ jobs:
           git add data/last_7_days_daily_data.csv
           git add data/karachi_daily_data_5_years.csv
           
-          # Check the status before committing
           git status
           
-          # This will now FAIL if there are no changes, telling us the truth.
-          # The -m flag provides the commit message.
+         
           git commit -m "Automated data update and aggregation"
           
           git push

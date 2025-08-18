@@ -1,24 +1,22 @@
-// This is a special Next.js directive. It tells Next.js that this component
-// needs to run in the browser, which is required for fetching data and managing state.
+
 'use client'; 
 
 import { useState, useEffect } from 'react';
 
-// This is your main page component.
+
 export default function HomePage() {
-  // --- State Variables ---
+ 
   const [todayAqi, setTodayAqi] = useState(null);
   const [forecast, setForecast] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // NEW STATE VARIABLE: To hold the "last updated" timestamp from the status endpoint.
+
   const [lastUpdated, setLastUpdated] = useState(null);
 
-  // --- Data Fetching Logic (useEffect) ---
   // This hook runs once when the component is first loaded.
   useEffect(() => {
-    // We now have two separate functions to fetch our data for clarity.
+    
     async function fetchAqiData() {
       const response = await fetch('https://qar-raz-aqi-predictor-qamar.hf.space/api/forecast');
       if (!response.ok) {
@@ -28,7 +26,6 @@ export default function HomePage() {
       return response.json();
     }
     
-    // NEW FETCH FUNCTION: To get the backend's status.
     async function fetchStatusData() {
       const response = await fetch('https://qar-raz-aqi-predictor-qamar.hf.space/api/status');
       if (!response.ok) {
@@ -38,19 +35,20 @@ export default function HomePage() {
       return response.json();
     }
 
-    // This new master function will run both fetches at the same time for efficiency.
+  
     async function loadAllData() {
       try {
-        // Promise.all is the most efficient way to run multiple fetches concurrently.
+       
         const [aqiData, statusData] = await Promise.all([
           fetchAqiData(),
           fetchStatusData()
         ]);
 
-        // Populate all our state variables with the results from both fetches.
+      
         setTodayAqi(aqiData.today);
         setForecast(aqiData.forecast);
-        setLastUpdated(statusData.model_last_updated_utc); // Set the new state
+        setLastUpdated(statusData.model_last_updated_utc); 
+        // Set the new state
 
       } catch (err) {
         setError(err.message);
@@ -60,14 +58,14 @@ export default function HomePage() {
     }
 
     loadAllData();
-  }, []); // The empty array `[]` means this effect runs only once.
+  }, []); // The empty array [] means this effect runs only once.
 
-  // --- UI Rendering Logic ---
+
 
   // A small helper function to format the long UTC date into a more readable format.
   const formatDate = (isoString) => {
     if (!isoString) return '';
-    // This will format the date like "August 17, 2025, 10:30 PM" in the user's local timezone.
+    
     return new Date(isoString).toLocaleString(undefined, {
       dateStyle: 'long',
       timeStyle: 'short',
@@ -109,7 +107,7 @@ export default function HomePage() {
         </div>
       )}
       
-      {/* --- Section for the 3-Day Forecast --- */}
+      {/* Section for the 3-Day Forecast */}
       <h2 className="forecast-title">Next 3 Days Forecast</h2>
       <ul className="forecast-list">
         {forecast && forecast.map((day) => (

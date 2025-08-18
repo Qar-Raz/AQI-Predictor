@@ -1,11 +1,11 @@
+# This updates the hf backend
 name: Deploy Backend to Hugging Face
 
-# --- TRIGGERS ---
 on:
-  # This allows you to run the workflow manually from the Actions tab
+  
   workflow_dispatch:
 
-  # This runs the workflow on a schedule
+  
   schedule:
     # Runs at 2 am karachi time
     - cron: '0 21 * * *'
@@ -19,7 +19,8 @@ jobs:
         uses: actions/checkout@v4
         # We don't need the full history, just the latest code
         with:
-          lfs: true # Crucially, tells the checkout to handle your LFS model file
+          lfs: true
+          #tells the checkout to handle your LFS model file, LFS is a github shipping service which handles large model files
 
       - name: Create Clean Deployment Branch
         run: |
@@ -34,7 +35,7 @@ jobs:
 
       - name: Push to Hugging Face Space
         env:
-          # Uses the HF_TOKEN secret you've already stored in GitHub
+          
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           # This is the same push command from your script
