@@ -30,6 +30,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
           git checkout --orphan deploy-branch
+          rm -f "AQI Predictor Report Final.pdf"
           git add -A
           git commit -m "Automated backend deployment for $(date +%F)"
 
